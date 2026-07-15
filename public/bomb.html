@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Бомба – SPOGELSEGAME</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .bomb-area {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .bomb-icon {
+            font-size: 6rem;
+            display: block;
+            margin: 10px 0;
+            animation: pulse 1.2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        .topic {
+            font-size: 2rem;
+            font-weight: 600;
+            color: #d6c6ff;
+            margin: 15px 0;
+        }
+        .input-area {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+        .input-area input {
+            padding: 14px 20px;
+            font-size: 1.2rem;
+            border-radius: 60px;
+            border: 1px solid rgba(180,140,255,0.2);
+            background: rgba(255,255,255,0.05);
+            color: #fff;
+            outline: none;
+            flex: 1;
+            min-width: 200px;
+        }
+        .input-area input:focus {
+            border-color: rgba(180,140,255,0.6);
+        }
+        .player-turn {
+            font-size: 1.4rem;
+            color: #b0a0c8;
+            margin: 10px 0;
+        }
+        .history {
+            background: rgba(0,0,0,0.2);
+            border-radius: 20px;
+            padding: 15px 20px;
+            margin: 20px 0;
+            max-height: 200px;
+            overflow-y: auto;
+            text-align: left;
+            font-size: 1.1rem;
+        }
+        .history span {
+            display: block;
+            padding: 4px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+        }
+    </style>
+</head>
+<body>
+    <div class="container" style="max-width: 800px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; margin-bottom: 10px;">
+            <h2 style="font-size: 1.8rem; margin: 0;">💣 Бомба</h2>
+            <a href="games.html" class="btn btn-secondary" style="padding: 8px 20px; font-size: 0.8rem;">← К играм</a>
+        </div>
+
+        <div class="bomb-area">
+            <div class="bomb-icon" id="bombIcon">💣</div>
+            <div class="timer" id="timerDisplay">15</div>
+            <div class="topic" id="topicDisplay">Тема: Животные</div>
+            <div class="player-turn" id="turnDisplay">Ход игрока 1</div>
+
+            <div class="input-area">
+                <input type="text" id="wordInput" placeholder="Введите слово..." autofocus>
+                <button class="btn" id="submitWordBtn">Отправить</button>
+            </div>
+
+            <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+                <button class="btn btn-secondary" id="startBombBtn">▶ Начать раунд</button>
+                <button class="btn btn-reset" id="resetBombBtn">🔄 Сброс</button>
+            </div>
+
+            <div class="history" id="historyList">
+                <span style="color: #5a4a6a;">История слов...</span>
+            </div>
+
+            <div style="margin-top: 15px; font-size: 0.8rem; color: #5a4a6a; letter-spacing: 0.05em;">
+                игроки называют слова по очереди, пока не взорвётся бомба
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ========== ИГРА БОМБА ==========
+        const topics = ['Животные', 'Еда', 'Города', 'Имена', 'Фильмы', 'Профессии', 'Цвета'];
+        let currentTopic = '';
+        let players = ['Игрок 1', 'Игрок 2', 'Игрок 3']; // можно менять
+        let currentPlayerIndex = 0;
+        let timeLeft = 15;
+        let timerId = null;
+        let isPlaying = false;
+        let usedWords = [];
+
+        const timerDisplay = document.getElementById('timerDisplay');
+        const topicDisplay = document.getElementById('topicDisplay');
+        const turnDisplay = document.getElementById('turnDisplay');
+        const wordInput = document.getElementById('wordInput');
+        const submitBtn = document.getElementById('submitWordBtn');
+        const startBtn = document.getElementById('startBombBtn');
+        const resetBtn = document.getElementById('resetBombBtn');
+        const historyList = document.getElementById('historyList');
+        const bombIcon = document.getElementById('bombIcon');
+
+        function getRandomTopic() {
+            return topics[Math.floor(Math.random() * topics.length)];
+        }
+
+        function updateUI() {
+            timerDisplay.textContent = timeLeft;
+            topicDisplay.textContent = `Тема: ${currentTopic}`;
+            turnDisplay.textContent = `Ход: ${players[currentPlayerIndex]}`;
+            // Меняем иконку в зависимости от времени
+            if (timeLeft <= 5) {
+                bombIcon.textContent = '🔥';
+                bombIcon.style.animation = 'pulse 0.5s infinite';
+            } else {
+                bombIcon.textContent = '💣';
+                bombIcon.style.animation = 'pulse 1.2s infinite';
+            }
+        }
+
+        function stopTimer() {
+            if (timerId) {
+                clearInterval(timerId);
+                timerId = null;
+            }
+        }
+
+        function endGame() {
+            stopTimer();
+            isPlaying = false;
+            const loser = players[currentPlayerIndex];
+            alert(`💥 Бомба взорвалась! Проиграл ${loser}!`);
+            turnDisplay.textContent = `💥 ${loser} проиграл!`;
+            wordInput.disabled = true;
+            submitBtn.disabled = true;
+        }
+
+        function nextTurn() {
+            if (!isPlaying) return;
+            currentPlayerIndex = (currentPlayerIndex + 1) % players.length;
+            updateUI();
+            wordInput.value = '';
+            wordInput.focus();
+        }
+
+        function handleWord() {
+            if (!isPlaying) return;
+            const word = wordInput.value.trim();
+            if (!word) return;
+            if (usedWords.includes(word.toLowerCase())) {
+                alert('Это слово уже было!');
+                wordInput.value = '';
+                return;
+            }
+            usedWords.push(word.toLowerCase());
+            // Добавляем в историю
+            const entry = document.createElement('span');
+            entry.textContent = `${players[currentPlayerIndex]}: ${word}`;
+            historyList.prepend(entry);
+
+            // Сброс таймера на 15 секунд
+            timeLeft = 15;
+            updateUI();
+            // Переход хода
+            nextTurn();
+        }
+
+        function startRound() {
+            stopTimer();
+            usedWords = [];
+            historyList.innerHTML = '<span style="color: #5a4a6a;">История слов...</span>';
+            currentTopic = getRandomTopic();
+            currentPlayerIndex = 0;
+            timeLeft = 15;
+            isPlaying = true;
+            wordInput.disabled = false;
+            submitBtn.disabled = false;
+            wordInput.value = '';
+            updateUI();
+            wordInput.focus();
+
+            timerId = setInterval(() => {
+                timeLeft--;
+                updateUI();
+                if (timeLeft <= 0) {
+                    endGame();
+                }
+            }, 1000);
+        }
+
+        function resetGame() {
+            stopTimer();
+            isPlaying = false;
+            timeLeft = 15;
+            currentTopic = getRandomTopic();
+            usedWords = [];
+            currentPlayerIndex = 0;
+            wordInput.disabled = true;
+            submitBtn.disabled = true;
+            wordInput.value = '';
+            historyList.innerHTML = '<span style="color: #5a4a6a;">История слов...</span>';
+            updateUI();
+            turnDisplay.textContent = 'Нажми «Начать раунд»';
+            bombIcon.textContent = '💣';
+            bombIcon.style.animation = 'pulse 1.2s infinite';
+        }
+
+        // Привязка
+        startBtn.addEventListener('click', startRound);
+        resetBtn.addEventListener('click', resetGame);
+        submitBtn.addEventListener('click', handleWord);
+        wordInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') handleWord();
+        });
+
+        // Инициализация
+        resetGame();
+    </script>
+</body>
+</html>
