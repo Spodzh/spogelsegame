@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Правда или действие – SPOGELSEGAME</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .game-area {
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        .prompt-box {
+            background: rgba(30, 22, 50, 0.6);
+            border-radius: 32px;
+            padding: 40px 30px;
+            margin: 25px 0;
+            border: 1px solid rgba(180, 140, 255, 0.1);
+            min-height: 160px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Cinzel', serif;
+            font-size: 1.8rem;
+            text-align: center;
+            color: #f0e8ff;
+            line-height: 1.4;
+            box-shadow: 0 0 40px rgba(90, 50, 150, 0.1);
+        }
+        .prompt-type {
+            display: inline-block;
+            padding: 6px 20px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 10px;
+        }
+        .type-truth { background: rgba(60, 120, 200, 0.3); color: #8ab4f0; }
+        .type-dare { background: rgba(200, 80, 80, 0.3); color: #f09a8a; }
+        .btn-group {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .btn-game {
+            min-width: 140px;
+            padding: 16px 28px;
+            font-size: 1rem;
+        }
+        .btn-truth { background: linear-gradient(135deg, #2a5a8a, #1a3a6a); }
+        .btn-dare { background: linear-gradient(135deg, #8a3a2a, #6a2a1a); }
+        .btn-next { background: linear-gradient(135deg, #5a4a7a, #3d2d5a); }
+    </style>
+</head>
+<body>
+    <div class="container" style="max-width: 800px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; margin-bottom: 10px;">
+            <h2 style="font-size: 1.8rem; margin: 0;">🔮 Правда или Действие</h2>
+            <a href="games.html" class="btn btn-secondary" style="padding: 8px 20px; font-size: 0.8rem;">← К играм</a>
+        </div>
+
+        <div class="game-area">
+            <p class="status" id="status">Нажми, чтобы получить задание</p>
+
+            <div class="prompt-box" id="promptBox">
+                <div>
+                    <div class="prompt-type" id="promptType">✦</div>
+                    <div id="promptText">Нажми «Правда» или «Действие»</div>
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-game btn-truth" id="truthBtn">🤔 Правда</button>
+                <button class="btn btn-game btn-dare" id="dareBtn">💪 Действие</button>
+                <button class="btn btn-game btn-next" id="nextBtn">🔄 Следующее</button>
+            </div>
+
+            <div style="margin-top: 20px; font-size: 0.8rem; color: #5a4a6a; text-align: center; letter-spacing: 0.05em;">
+                👻 Вопросы от самих духов
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // -------------------- База вопросов --------------------
+        const TRUTHS = [
+            "Какая твоя самая странная привычка?",
+            "Что ты делаешь, когда остаёшься один?",
+            "Кого из нас ты бы хотел поменять местами?",
+            "Какой самый неловкий момент в твоей жизни?",
+            "Что ты ненавидишь в людях больше всего?",
+            "Если бы ты мог исчезнуть на день, что бы сделал?",
+            "Какая твоя самая глупая покупка?",
+            "Что ты скрываешь от родителей?",
+            "Кто из нас самый раздражающий?",
+            "Что ты делаешь, когда никто не видит?",
+            "Какую тайну ты никогда не расскажешь?",
+            "Что ты боишься потерять больше всего?",
+            "Что бы ты сделал, если бы выиграл миллион?",
+            "Какой самый странный сон тебе снился?",
+            "Что ты делаешь, когда скучаешь?",
+            "Кому из нас ты завидуешь и в чём?",
+            "Что ты делаешь, когда злишься?",
+            "Что самое постыдное, что ты смотрел в интернете?"
+        ];
+
+        const DARES = [
+            "Изобрази животное, которое скажут другие.",
+            "Спой песню в полный голос.",
+            "Расскажи анекдот, если никто не засмеётся — выпей воды.",
+            "Поменяйся одеждой с соседом на 1 минуту.",
+            "Протанцуй 30 секунд под любую музыку.",
+            "Сделай комплимент каждому в комнате.",
+            "Отожмись 10 раз.",
+            "Встань на стул и прочитай стихотворение.",
+            "Расскажи страшную историю голосом старого шамана.",
+            "Изобрази, как ты выглядишь, когда просыпаешься.",
+            "Позвони кому-то из контактов и спроси что-то странное.",
+            "Попробуй съесть ложку соли или лимон.",
+            "Покажи свой последний поисковый запрос в телефоне.",
+            "Притворись роботом в течение 2 минут.",
+            "Назови 10 блюд за 10 секунд.",
+            "Сделай 5 приседаний с поднятыми руками.",
+            "Нарисуй что-то на листе с закрытыми глазами.",
+            "Поцелуй своё отражение в зеркале."
+        ];
+
+        // -------------------- Состояние --------------------
+        const promptText = document.getElementById('promptText');
+        const promptType = document.getElementById('promptType');
+        const status = document.getElementById('status');
+
+        const truthBtn = document.getElementById('truthBtn');
+        const dareBtn = document.getElementById('dareBtn');
+        const nextBtn = document.getElementById('nextBtn');
+
+        let currentType = '';
+
+        function getRandom(arr) {
+            return arr[Math.floor(Math.random() * arr.length)];
+        }
+
+        function showTruth() {
+            currentType = 'truth';
+            promptType.textContent = '✦ Правда';
+            promptType.className = 'prompt-type type-truth';
+            promptText.textContent = getRandom(TRUTHS);
+            status.textContent = '🤔 Отвечай честно!';
+        }
+
+        function showDare() {
+            currentType = 'dare';
+            promptType.textContent = '✦ Действие';
+            promptType.className = 'prompt-type type-dare';
+            promptText.textContent = getRandom(DARES);
+            status.textContent = '💪 Выполняй!';
+        }
+
+        function resetPrompt() {
+            promptType.textContent = '✦';
+            promptType.className = 'prompt-type';
+            promptText.textContent = 'Нажми «Правда» или «Действие»';
+            status.textContent = 'Нажми, чтобы получить задание';
+            currentType = '';
+        }
+
+        truthBtn.addEventListener('click', showTruth);
+        dareBtn.addEventListener('click', showDare);
+        nextBtn.addEventListener('click', resetPrompt);
+
+        // инициализация
+        resetPrompt();
+    </script>
+</body>
+</html>
