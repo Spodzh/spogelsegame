@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SPOGELSEGAME – Призрачные игры</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container" style="text-align: center; max-width: 800px;">
+        <div style="margin-bottom: 20px;">
+            <span style="font-size: 5rem; filter: drop-shadow(0 0 40px rgba(140,100,220,0.3));">👻</span>
+        </div>
+        <h1>SPOGELSEGAME</h1>
+        <p class="subtitle">Игры, в которые играют духи</p>
+        <p style="max-width: 480px; margin: 0 auto 35px; font-size: 1.15rem; color: #b0a0c8; line-height: 1.7;">
+            Собери компанию, создай комнату и пригласи друзей.
+        </p>
+
+        <div style="display: flex; flex-direction: column; gap: 20px; align-items: center;">
+            <button class="btn" id="createRoomBtn" style="width: 100%; max-width: 300px;">➕ Создать комнату</button>
+            <div style="display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; max-width: 400px; width: 100%;">
+                <input type="text" id="roomIdInput" placeholder="Код комнаты" style="flex: 1; padding: 14px 20px; border-radius: 60px; border: 1px solid rgba(180,140,255,0.2); background: rgba(255,255,255,0.05); color: #fff; outline: none; min-width: 150px;">
+                <button class="btn btn-secondary" id="joinRoomBtn">Присоединиться</button>
+            </div>
+        </div>
+
+        <div id="roomStatus" style="margin-top: 30px; font-size: 1rem; color: #b0a0c8;"></div>
+        <div id="playerList" style="margin-top: 15px; display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;"></div>
+        <div id="gameSelection" style="margin-top: 30px; display: none;">
+            <h3 style="margin-bottom: 15px;">Выберите игру</h3>
+            <div style="display: flex; gap: 20px; flex-wrap: wrap; justify-content: center;">
+                <a href="crocodile.html" class="btn btn-secondary">🤫 Немая сцена</a>
+                <a href="bomb.html" class="btn btn-secondary">💣 Бомба</a>
+                <!-- другие игры -->
+            </div>
+        </div>
+
+        <div style="margin-top: 40px; font-size: 0.85rem; color: #5a4a6a; letter-spacing: 0.1em;">
+            ✦ мистика • веселье • духи ✦
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="room.js"></script>
+    <script>
+        // ----- Логика главной страницы -----
+        let currentRoomId = null;
+        let playerName = '';
+
+        // Запрашиваем имя игрока
+        function getPlayerName() {
+            let name = localStorage.getItem('spogelsegame_player');
+            if (!name) {
+                name = prompt('Введите ваше имя:', 'Игрок');
+                if (name) localStorage.setItem('spogelsegame_player', name);
+                else name = 'Игрок' + Math.floor(Math.random() * 1000);
+            }
+            return name;
+        }
+
+        playerName = getPlayerName();
+
+        // Показываем имя в статусе
+        document.getElementById('roomStatus').textContent = `Вы: ${playerName}`;
+
+        // Создание комнаты
+        document.getElementById('createRoomBtn').addEventListener('click', async () => {
+            const roomId = await SpogelseGame.createRoom();
+            if (roomId) {
+                currentRoomId = roomId;
+                document.getElementById('roomStatus').innerHTML = `Комната создана: <strong>${roomId}</strong><br>Ссылка для приглашения: <input type="text" readonly value="${window.location.origin}/?room=${roomId}" style="background:rgba(255,255,255,0.1); border:none; color:#fff; padding:4px; width:100%; max-width:300px; text-align:center;" onclick="this.select();document.execCommand('copy');">`;
+                // Присоединяемся сами
+                joinRoomAndShowPlayers(roomId);
+            } else {
+                alert('Не удалось создать комнату. Попробуйте позже.');
+            }
+        });
+
+        // Присоединение к комнате по коду
+        document.getElementById('joinRoomBtn').addEventListener('click', () => {
+            const roomId = document.getElementById('roomIdInput').value.trim();
+            if (!roomId) return alert('Введите код комнаты');
+            currentRoomId = roomId;
+            joinRoomAndShowPlayers(roomId);
+        });
+
+        // Также проверяем URL параметр ?room=...
+        const params = new URLSearchParams(window.location.search);
+        const roomFromUrl = params.get('room');
+        if (roomFromUrl) {
+            document.getElementById('roomIdInput').value = roomFromUrl;
+            currentRoomId = roomFromUrl;
+            joinRoomAndShowPlayers(roomFromUrl);
+        }
+
+        async function joinRoomAndShowPlayers(roomId) {
+            try {
+                const players = await SpogelseGame.joinRoom(roomId, playerName);
+                document.getElementById('roomStatus').innerHTML = `Вы в комнате <strong>${roomId}</strong>`;
+                updatePlayerList(players);
+                document.getElementById('gameSelection').style.display = 'block';
+                // Подписываемся на обновления игроков
+                SpogelseGame.onPlayersUpdate((updatedPlayers) => {
+                    updatePlayerList(updatedPlayers);
+                });
+            } catch (err) {
+                alert(`Ошибка: ${err.message}`);
+                document.getElementById('roomStatus').textContent = 'Не удалось присоединиться к комнате';
+                currentRoomId = null;
+            }
+        }
+
+        function updatePlayerList(players) {
+            const container = document.getElementById('playerList');
+            container.innerHTML = '';
+            players.forEach(p => {
+                const span = document.createElement('span');
+                span.textContent = p.name;
+                span.style.cssText = 'background: rgba(180,140,255,0.1); padding: 8px 18px; border-radius: 40px; border: 1px solid rgba(180,140,255,0.2);';
+                container.appendChild(span);
+            });
+            if (players.length === 0) {
+                container.innerHTML = '<span style="color: #5a4a6a;">Никого нет...</span>';
+            }
+        }
+    </script>
+</body>
+</html>
