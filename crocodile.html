@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Немая сцена – SPOGELSEGAME</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Специфичные стили для игры */
+        .game-area {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .word {
+            font-size: 4rem;
+            margin: 30px 0;
+            min-height: 100px;
+            color: #d4c8f0;
+        }
+        .timer {
+            font-size: 3rem;
+            margin: 20px 0;
+            color: #b8a0e0;
+        }
+        .score span {
+            font-size: 1.3rem;
+            margin: 0 15px;
+        }
+        .btn-group {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 12px;
+            margin: 25px 0;
+        }
+        .btn-game {
+            padding: 14px 30px;
+            min-width: 130px;
+        }
+        .btn-correct { background: #2a7a4a; }
+        .btn-correct:hover { background: #3a9a5a; }
+        .btn-skip { background: #7a4a2a; }
+        .btn-skip:hover { background: #9a5a3a; }
+        .btn-reset { background: #4a3a5a; }
+        .btn-reset:hover { background: #5a4a6a; }
+        .status {
+            margin: 15px 0;
+            font-size: 1.2rem;
+            color: #b0a0c0;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2 style="font-size: 2rem;">🤫 Немая сцена</h2>
+    <p class="status" id="status">Нажми «Начать»</p>
+
+    <div class="game-area">
+        <div class="word" id="wordDisplay">???</div>
+        <div class="timer" id="timerDisplay">60</div>
+        <div class="score">
+            <span>✅ Угадано: <strong id="correctCount">0</strong></span>
+            <span>⏭️ Пропущено: <strong id="skipCount">0</strong></span>
+        </div>
+
+        <div class="btn-group">
+            <button class="btn btn-game" id="startBtn">▶ Начать</button>
+            <button class="btn btn-game btn-correct" id="correctBtn">✅ Угадал</button>
+            <button class="btn btn-game btn-skip" id="skipBtn">⏭️ Пропустить</button>
+            <button class="btn btn-game btn-reset" id="resetBtn">🔄 Сброс</button>
+        </div>
+
+        <div style="margin-top: 20px;">
+            <a href="games.html" class="btn btn-secondary" style="padding: 10px 25px; font-size: 0.9rem;">← К играм</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    // -------------------- Игровая логика (та же, что была) --------------------
+    const WORDS = [
+        "кот", "собака", "слон", "жираф", "крокодил", "обезьяна", "тигр", "медведь",
+        "пицца", "бургер", "суши", "паста", "мороженое", "торт",
+        "врач", "пожарный", "учитель", "пилот", "художник", "повар",
+        "танцевать", "плавать", "летать", "рисовать", "петь", "играть на гитаре",
+        "зонт", "велосипед", "ноутбук", "часы", "зеркало", "статуя",
+        "радость", "гроза", "космос", "замок", "призрак", "магия"
+    ];
+
+    let currentWord = '';
+    let timeLeft = 60;
+    let timerId = null;
+    let correct = 0;
+    let skip = 0;
+    let isPlaying = false;
+
+    const wordDisplay = document.getElementById('wordDisplay');
+    const timerDisplay = document.getElementById('timerDisplay');
+    const correctCount = document.getElementById('correctCount');
+    const skipCount = document.getElementById('skipCount');
+    const status = document.getElementById('status');
+
+    const startBtn = document.getElementById('startBtn');
+    const correctBtn = document.getElementById('correctBtn');
+    const skipBtn = document.getElementById('skipBtn');
+    const resetBtn = document.getElementById('resetBtn');
+
+    function getRandomWord() {
+        return WORDS[Math.floor(Math.random() * WORDS.length)];
+    }
+
+    function updateUI() {
+        wordDisplay.textContent = currentWord || '???';
+        timerDisplay.textContent = timeLeft;
+        correctCount.textContent = correct;
+        skipCount.textContent = skip;
+    }
+
+    function stopTimer() {
+        if (timerId) {
+            clearInterval(timerId);
+            timerId = null;
+        }
+    }
+
+    function endGame() {
+        stopTimer();
+        isPlaying = false;
+        status.textContent = '⏰ Время вышло! Начни новую игру.';
+        wordDisplay.textContent = '🏁';
+    }
+
+    function nextWord() {
+        if (!isPlaying) return;
+        currentWord = getRandomWord();
+        updateUI();
+    }
+
+    function startGame() {
+        stopTimer();
+        correct = 0;
+        skip = 0;
+        timeLeft = 60;
+        isPlaying = true;
+        currentWord = getRandomWord();
+        updateUI();
+        status.textContent = '🎯 Объясняй жестами!';
+
+        timerId = setInterval(() => {
+            timeLeft--;
+            timerDisplay.textContent = timeLeft;
+            if (timeLeft <= 0) {
+                endGame();
+            }
+        }, 1000);
+    }
+
+    function handleCorrect() {
+        if (!isPlaying) return;
+        correct++;
+        nextWord();
+    }
+
+    function handleSkip() {
+        if (!isPlaying) return;
+        skip++;
+        nextWord();
+    }
+
+    function resetGame() {
+        stopTimer();
+        isPlaying = false;
+        timeLeft = 60;
+        correct = 0;
+        skip = 0;
+        currentWord = '';
+        updateUI();
+        status.textContent = '🔄 Игра сброшена. Нажми «Начать».';
+        wordDisplay.textContent = '???';
+    }
+
+    startBtn.addEventListener('click', startGame);
+    correctBtn.addEventListener('click', handleCorrect);
+    skipBtn.addEventListener('click', handleSkip);
+    resetBtn.addEventListener('click', resetGame);
+
+    resetGame();
+</script>
+</body>
+</html>
