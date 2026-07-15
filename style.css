@@ -1,0 +1,160 @@
+/* ===== Глобальные стили ===== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #0d0b14;
+    color: #e0dce8;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    background-image: radial-gradient(ellipse at 20% 50%, #1a1128 0%, #0d0b14 70%);
+}
+
+.container {
+    max-width: 1200px;
+    width: 100%;
+    background: rgba(20, 16, 30, 0.8);
+    backdrop-filter: blur(6px);
+    border-radius: 40px;
+    padding: 40px 30px;
+    box-shadow: 0 0 60px rgba(120, 60, 200, 0.2), inset 0 0 30px rgba(120, 60, 200, 0.05);
+    border: 1px solid rgba(180, 140, 255, 0.1);
+    text-align: center;
+}
+
+h1, h2 {
+    font-weight: 300;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+}
+
+h1 {
+    font-size: 4rem;
+    background: linear-gradient(135deg, #c8b0ff, #8a6dcc);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 30px rgba(138, 109, 204, 0.3);
+    margin-bottom: 10px;
+}
+
+.subtitle {
+    font-size: 1.2rem;
+    color: #9a8ab0;
+    letter-spacing: 2px;
+    margin-bottom: 30px;
+}
+
+/* ===== Кнопки ===== */
+.btn {
+    display: inline-block;
+    padding: 16px 48px;
+    margin: 10px;
+    font-size: 1.2rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    border: none;
+    border-radius: 60px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: linear-gradient(135deg, #6a4c9c, #4a2c7a);
+    color: #fff;
+    box-shadow: 0 4px 20px rgba(90, 50, 150, 0.4);
+    text-decoration: none;
+}
+
+.btn:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 8px 30px rgba(120, 70, 200, 0.6);
+}
+
+.btn-secondary {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(180, 140, 255, 0.2);
+    box-shadow: none;
+}
+
+.btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(180, 140, 255, 0.4);
+}
+
+/* ===== Сетка игр ===== */
+.games-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 30px;
+    margin-top: 40px;
+}
+
+.game-card {
+    background: rgba(30, 24, 48, 0.7);
+    backdrop-filter: blur(4px);
+    border-radius: 30px;
+    padding: 30px 20px 25px;
+    border: 1px solid rgba(180, 140, 255, 0.08);
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    text-align: center;
+}
+
+.game-card:hover {
+    transform: translateY(-8px);
+    border-color: rgba(180, 140, 255, 0.3);
+    box-shadow: 0 12px 40px rgba(90, 50, 150, 0.3);
+}
+
+.game-icon {
+    font-size: 4rem;
+    margin-bottom: 12px;
+}
+
+.game-card h3 {
+    font-size: 1.8rem;
+    font-weight: 300;
+    letter-spacing: 2px;
+    margin-bottom: 6px;
+    color: #d4c8f0;
+}
+
+.game-card p {
+    color: #9a8ab0;
+    font-size: 0.95rem;
+    margin-bottom: 18px;
+    line-height: 1.4;
+}
+
+.game-card .btn {
+    padding: 10px 30px;
+    font-size: 0.9rem;
+}
+
+/* ===== Призрачные детали ===== */
+.ghost-float {
+    animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+    100% { transform: translateY(0px); }
+}
+
+.glow-text {
+    text-shadow: 0 0 30px rgba(138, 109, 204, 0.3);
+}
+
+/* ===== Адаптив ===== */
+@media (max-width: 600px) {
+    h1 { font-size: 2.8rem; }
+    .container { padding: 25px 16px; }
+    .games-grid { grid-template-columns: 1fr; }
+}
