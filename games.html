@@ -8,37 +8,44 @@
 </head>
 <body>
     <div class="container">
-        <h2 style="font-size: 2.2rem; margin-bottom: 6px;">Выберите игру</h2>
-        <p class="subtitle" style="font-size: 1rem;">Призраки ждут</p>
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; margin-bottom: 10px;">
+            <div style="text-align: left;">
+                <h2 style="margin-bottom: 0;">Выберите игру</h2>
+                <p class="subtitle" style="margin-bottom: 0; font-size: 0.9rem;">Призраки ждут</p>
+            </div>
+            <a href="index.html" class="btn btn-secondary" style="padding: 10px 24px; font-size: 0.85rem;">← На главную</a>
+        </div>
 
         <div class="games-grid">
-            <!-- Карточка игры: Немая сцена -->
+            <!-- Немая сцена -->
             <div class="game-card">
-                <div class="game-icon">🤫</div>
+                <span class="game-icon">🤫</span>
                 <h3>Немая сцена</h3>
                 <p>Объясняй слова жестами, пока не истекло время.</p>
                 <a href="crocodile.html" class="btn btn-secondary">Играть</a>
             </div>
 
-            <!-- Здесь позже добавятся другие игры -->
-            <!--
-            <div class="game-card">
-                <div class="game-icon">👻</div>
+            <!-- Заглушки для будущих игр -->
+            <div class="game-card" style="opacity: 0.5; pointer-events: none;">
+                <span class="game-icon">👻</span>
                 <h3>Одержимые</h3>
                 <p>Найди призрака среди живых.</p>
-                <a href="#" class="btn btn-secondary">Скоро</a>
+                <span class="btn btn-secondary" style="opacity: 0.5;">Скоро</span>
             </div>
-            <div class="game-card">
-                <div class="game-icon">🔮</div>
+
+            <div class="game-card" style="opacity: 0.5; pointer-events: none;">
+                <span class="game-icon">🔮</span>
                 <h3>Спиритический сеанс</h3>
                 <p>Правда или действие от потустороннего.</p>
-                <a href="#" class="btn btn-secondary">Скоро</a>
+                <span class="btn btn-secondary" style="opacity: 0.5;">Скоро</span>
             </div>
-            -->
-        </div>
 
-        <div style="margin-top: 40px;">
-            <a href="index.html" class="btn btn-secondary" style="padding: 12px 30px; font-size: 0.9rem;">← На главную</a>
+            <div class="game-card" style="opacity: 0.5; pointer-events: none;">
+                <span class="game-icon">🕯️</span>
+                <h3>Проклятый предмет</h3>
+                <p>Передавай артефакт, пока не взорвётся.</p>
+                <span class="btn btn-secondary" style="opacity: 0.5;">Скоро</span>
+            </div>
         </div>
     </div>
 </body>
