@@ -24,19 +24,33 @@ body {
     padding: 20px;
     background: radial-gradient(ellipse at 30% 20%, #1d1135 0%, #0b0816 70%);
     position: relative;
+    overflow-x: hidden;
 }
 
-/* ===== Фоновые декорации ===== */
-body::before {
-    content: '';
+/* ===== Кастомный скроллбар ===== */
+::-webkit-scrollbar {
+    width: 8px;
+}
+::-webkit-scrollbar-track {
+    background: rgba(18, 14, 30, 0.8);
+}
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #7a5ab0, #4d2e7a);
+    border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #9a7ac8;
+}
+
+/* ===== Фоновые частицы (canvas) ===== */
+#particles-canvas {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" opacity="0.06"><path d="M200 0 L400 200 L200 400 L0 200 Z" fill="%239377cc"/><circle cx="200" cy="200" r="80" fill="%236b4c9c"/></svg>') repeat;
-    pointer-events: none;
     z-index: 0;
+    pointer-events: none;
 }
 
 /* ===== Контейнер ===== */
@@ -45,16 +59,23 @@ body::before {
     z-index: 1;
     max-width: 1200px;
     width: 100%;
-    background: rgba(18, 14, 30, 0.6);
+    background: rgba(18, 14, 30, 0.5);
     backdrop-filter: blur(16px) saturate(180%);
     -webkit-backdrop-filter: blur(16px) saturate(180%);
     border-radius: 48px;
     padding: 50px 40px;
-    border: 1px solid rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.05);
     box-shadow: 
         0 0 80px rgba(90, 50, 150, 0.15),
         inset 0 1px 0 rgba(255, 255, 255, 0.05);
     transition: all 0.4s ease;
+    animation: fadeSlideUp 0.8s ease-out;
+}
+
+/* ===== Анимация появления ===== */
+@keyframes fadeSlideUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 /* ===== Типография ===== */
@@ -164,7 +185,12 @@ h3 {
     text-align: center;
     position: relative;
     overflow: hidden;
+    animation: fadeSlideUp 0.6s ease-out both;
 }
+.game-card:nth-child(1) { animation-delay: 0.1s; }
+.game-card:nth-child(2) { animation-delay: 0.2s; }
+.game-card:nth-child(3) { animation-delay: 0.3s; }
+.game-card:nth-child(4) { animation-delay: 0.4s; }
 
 .game-card::before {
     content: '';
@@ -283,23 +309,44 @@ h3 {
 .btn-reset { background: linear-gradient(135deg, #5a4a7a, #3d2d5a); }
 .btn-reset:hover { box-shadow: 0 0 30px rgba(90, 74, 122, 0.4); }
 
-/* ===== Анимации ===== */
-@keyframes fadeSlideUp {
-    from { opacity: 0; transform: translateY(30px); }
-    to { opacity: 1; transform: translateY(0); }
+/* ===== Стиль для Бомбы ===== */
+.bomb-icon {
+    font-size: 6rem;
+    display: block;
+    margin: 10px 0;
+    animation: pulse 1.2s infinite;
 }
-
-.container {
-    animation: fadeSlideUp 0.6s ease-out;
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
 }
-
-.game-card {
-    animation: fadeSlideUp 0.6s ease-out both;
+.topic {
+    font-size: 2rem;
+    font-weight: 600;
+    color: #d6c6ff;
+    margin: 15px 0;
 }
-.game-card:nth-child(1) { animation-delay: 0.1s; }
-.game-card:nth-child(2) { animation-delay: 0.2s; }
-.game-card:nth-child(3) { animation-delay: 0.3s; }
-.game-card:nth-child(4) { animation-delay: 0.4s; }
+.player-turn {
+    font-size: 1.4rem;
+    color: #b0a0c8;
+    margin: 10px 0;
+}
+.history {
+    background: rgba(0,0,0,0.2);
+    border-radius: 20px;
+    padding: 15px 20px;
+    margin: 20px 0;
+    max-height: 200px;
+    overflow-y: auto;
+    text-align: left;
+    font-size: 1.1rem;
+}
+.history span {
+    display: block;
+    padding: 4px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+}
 
 /* ===== Адаптив ===== */
 @media (max-width: 700px) {
